@@ -3,95 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أكاديمية المعالي PRO</title>
+    <title>أكاديمية المعالي | لوحة التحكم</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
         body { font-family: 'Cairo', sans-serif; background: #f8fafc; }
-        .attendance-checkbox { width: 32px; height: 32px; border-radius: 10px; border: 2px solid #e2e8f0; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; transition: 0.3s; color: #94a3b8; }
-        .attendance-checkbox.checked { background: #10b981; border-color: #10b981; color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
+        .attendance-checkbox { width: 34px; height: 34px; border-radius: 10px; border: 2px solid #e2e8f0; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; transition: 0.3s; color: #94a3b8; }
+        .attendance-checkbox.checked { background: #10b981; border-color: #10b981; color: white; }
         .view-section { display: none; }
-        .active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .view-section.active { display: block; }
     </style>
 </head>
-<body class="pb-24">
+<body class="pb-28">
 
-    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b px-4 py-3 flex justify-between items-center shadow-sm">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg"><i class="fas fa-graduation-cap"></i></div>
-            <h1 class="font-900 text-blue-900 text-lg">أكاديمية المعالي</h1>
-        </div>
-        <div class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full"><%= stats.total %> طالب مسجل</div>
+    <nav class="bg-white border-b p-4 sticky top-0 z-50 flex justify-between items-center shadow-sm">
+        <h1 class="font-900 text-blue-800 text-xl">أكاديمية المعالي</h1>
+        <div class="bg-blue-50 text-blue-600 px-4 py-1 rounded-full text-xs font-bold">نشط حالياً</div>
     </nav>
 
-    <main class="max-w-4xl mx-auto p-4">
+    <main class="max-w-2xl mx-auto p-4">
         
         <section id="statsView" class="view-section active space-y-4">
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
-                    <p class="text-[10px] text-slate-400 font-bold mb-2">توزيع الأطوار</p>
-                    <canvas id="cycleChart" height="150"></canvas>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col items-center">
+                    <p class="text-[10px] font-bold text-slate-400 mb-2">توزيع الأطوار</p>
+                    <div class="h-32 w-32"><canvas id="cycleChart"></canvas></div>
                 </div>
-                <div class="bg-blue-600 p-4 rounded-3xl text-white shadow-lg flex flex-col justify-between">
-                    <i class="fas fa-wallet text-2xl opacity-50"></i>
-                    <div>
-                        <h3 class="text-2xl font-900"><%= stats.unpaid %></h3>
-                        <p class="text-[10px] opacity-80">مطالبات دفع معلقة</p>
-                    </div>
+                <div class="bg-indigo-600 p-5 rounded-[2rem] text-white flex flex-col justify-center">
+                    <p class="text-xs opacity-70">إجمالي الطلاب</p>
+                    <p class="text-3xl font-900"><%= stats.total %></p>
+                    <p class="mt-4 text-[10px] bg-white/20 p-2 rounded-xl">المستحقات المعلقة: <%= stats.unpaid %></p>
                 </div>
             </div>
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                <h3 class="text-xs font-bold text-slate-400 mb-4">نمو المداخيل</h3>
-                <canvas id="incomeChart" height="100"></canvas>
+            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+                <p class="text-[10px] font-bold text-slate-400 mb-4">أداء المداخيل التقريبي</p>
+                <canvas id="incomeChart" height="120"></canvas>
             </div>
         </section>
 
         <section id="studentsView" class="view-section space-y-4">
-            <div class="flex justify-between items-center px-2">
-                <h2 class="font-900 text-slate-800">قائمة الطلاب</h2>
-                <input type="text" id="search" onkeyup="filterStudents()" placeholder="بحث..." class="text-xs p-2 rounded-xl bg-slate-100 border-none outline-none w-1/2">
+            <div class="flex gap-2">
+                <input type="text" id="search" onkeyup="filter()" placeholder="ابحث عن اسم الطالب..." class="flex-1 p-4 rounded-2xl bg-white border-none shadow-sm text-sm outline-none">
             </div>
 
-            <div class="grid gap-4" id="studentList">
+            <div id="studentContainer" class="space-y-4">
                 <% students.forEach((s, sIdx) => { %>
-                <div class="student-card bg-white p-5 rounded-[2rem] shadow-sm border border-slate-50 space-y-4">
+                <div class="card bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
                     <div class="flex justify-between items-start">
                         <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center text-blue-600 font-bold text-xl"><%= s.name[0] %></div>
+                            <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-lg"><%= s.name[0] %></div>
                             <div>
                                 <h4 class="font-bold text-slate-800"><%= s.name %></h4>
-                                <p class="text-[10px] text-slate-400 font-bold"><%= s.cycle %> • <%= s.year %> • <%= s.stream %></p>
+                                <p class="text-[10px] text-slate-400"><%= s.cycle %> • <%= s.year %></p>
                             </div>
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="addSubjectPrompt('<%= s.id %>')" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 text-xs"><i class="fas fa-plus"></i></button>
-                            <form action="/delete/<%= s.id %>" method="POST"><button class="w-8 h-8 rounded-lg bg-red-50 text-red-400 text-xs"><i class="fas fa-trash"></i></button></form>
+                            <button onclick="addSubjectPrompt('<%= s.id %>')" class="p-2 text-blue-500 bg-blue-50 rounded-lg text-xs"><i class="fas fa-plus"></i> مادة</button>
+                            <form action="/delete/<%= s.id %>" method="POST" onsubmit="return confirm('حذف؟')"><button class="p-2 text-red-300"><i class="fas fa-trash"></i></button></form>
                         </div>
                     </div>
 
                     <div class="space-y-3">
-                        <% s.subjects.forEach((sub, subIdx) => { %>
-                        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                            <div class="flex justify-between items-center mb-3">
-                                <span class="text-xs font-900 text-slate-700"><%= sub.name %></span>
-                                <button onclick="togglePaid('<%= s.id %>', <%= subIdx %>, this)" 
-                                    class="text-[9px] px-3 py-1 rounded-full font-bold transition-all <%= sub.paid ? 'bg-green-500 text-white' : 'bg-red-50 text-red-500' %>">
-                                    <%= sub.paid ? 'خالص ✓' : 'غير خالص' %>
-                                </button>
-                            </div>
-                            <div class="flex flex-wrap gap-2">
-                                <% sub.attendance.forEach((done, attIdx) => { %>
-                                <div onclick="updateAtt('<%= s.id %>', <%= subIdx %>, <%= attIdx %>, this)" 
-                                    class="attendance-checkbox <%= done ? 'checked' : '' %>">
-                                    <%= attIdx + 1 %>
+                        <% if(s.subjects && s.subjects.length > 0) { %>
+                            <% s.subjects.forEach((sub, subIdx) => { %>
+                            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-xs font-bold text-slate-700"><%= sub.name %></span>
+                                    <button onclick="togglePaid('<%= s.id %>', <%= subIdx %>, this)" 
+                                        class="text-[9px] px-3 py-1 rounded-lg font-bold transition-all <%= sub.paid ? 'bg-green-500 text-white' : 'bg-red-50 text-red-500 border border-red-100' %>">
+                                        <%= sub.paid ? 'تم الدفع ✓' : 'غير خالص' %>
+                                    </button>
                                 </div>
-                                <% }) %>
+                                <div class="flex flex-wrap gap-2">
+                                    <% sub.attendance.forEach((done, attIdx) => { %>
+                                    <div onclick="updateAtt('<%= s.id %>', <%= subIdx %>, <%= attIdx %>, this)" 
+                                        class="attendance-checkbox <%= done ? 'checked' : '' %>">
+                                        <%= attIdx + 1 %>
+                                    </div>
+                                    <% }) %>
+                                </div>
                             </div>
-                        </div>
-                        <% }) %>
+                            <% }) %>
+                        <% } else { %>
+                            <p class="text-[10px] text-slate-400 text-center">لا توجد مواد مسجلة لهذا الطالب</p>
+                        <% } %>
                     </div>
                 </div>
                 <% }) %>
@@ -99,107 +96,96 @@
         </section>
     </main>
 
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-white/90 backdrop-blur-xl border rounded-full h-16 flex items-center justify-around px-8 shadow-2xl z-50">
-        <button onclick="showView('statsView')" class="text-slate-400 hover:text-blue-600 transition"><i class="fas fa-chart-pie text-xl"></i></button>
-        <button onclick="openModal()" class="w-14 h-14 bg-blue-600 rounded-full text-white shadow-lg shadow-blue-200 -mt-12 border-[6px] border-white flex items-center justify-center"><i class="fas fa-plus"></i></button>
-        <button onclick="showView('studentsView')" class="text-slate-400 hover:text-blue-600 transition"><i class="fas fa-users text-xl"></i></button>
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-white border shadow-2xl rounded-full h-16 flex items-center justify-around px-4 z-50">
+        <button onclick="tab('statsView')" class="p-4 text-slate-400 hover:text-blue-600"><i class="fas fa-chart-bar text-xl"></i></button>
+        <button onclick="openModal()" class="w-14 h-14 bg-blue-600 rounded-full text-white shadow-xl -mt-10 border-4 border-white flex items-center justify-center"><i class="fas fa-plus"></i></button>
+        <button onclick="tab('studentsView')" class="p-4 text-slate-400 hover:text-blue-600"><i class="fas fa-users text-xl"></i></button>
     </div>
 
-    <div id="addModal" class="fixed inset-0 bg-slate-900/40 hidden backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-        <form action="/add-student" method="POST" class="bg-white w-full max-w-md p-8 rounded-[2.5rem] shadow-2xl space-y-4">
-            <h2 class="text-xl font-900 text-center">تسجيل طالب جديد</h2>
-            <input name="name" type="text" placeholder="اسم الطالب" class="w-full bg-slate-50 p-4 rounded-2xl outline-none focus:ring-2 ring-blue-500" required>
-            <div class="grid grid-cols-2 gap-3">
-                <select id="cycle" name="cycle" onchange="loadYears()" class="bg-slate-50 p-4 rounded-2xl outline-none text-sm" required>
+    <div id="addModal" class="fixed inset-0 bg-black/50 hidden backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <form action="/add-student" method="POST" class="bg-white w-full max-w-sm p-6 rounded-[2rem] space-y-4">
+            <h3 class="text-center font-bold">تسجيل طالب جديد</h3>
+            <input name="name" type="text" placeholder="اسم الطالب" class="w-full p-4 bg-slate-50 rounded-2xl outline-none" required>
+            <div class="grid grid-cols-2 gap-2">
+                <select id="cSel" name="cycle" onchange="loadOptions()" class="p-4 bg-slate-50 rounded-2xl text-sm" required>
                     <option value="">الطور</option><option>ابتدائي</option><option>متوسط</option><option>ثانوي</option>
                 </select>
-                <select id="year" name="year" class="bg-slate-50 p-4 rounded-2xl outline-none text-sm" required><option value="">السنة</option></select>
+                <select id="ySel" name="year" class="p-4 bg-slate-50 rounded-2xl text-sm" required><option value="">السنة</option></select>
             </div>
-            <div id="subContainer" class="flex flex-wrap gap-2 py-2">
-                </div>
-            <div class="flex gap-3 pt-4">
-                <button type="submit" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold">حفظ البيانات</button>
-                <button type="button" onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-400 py-4 rounded-2xl font-bold">إلغاء</button>
-            </div>
+            <div id="subList" class="flex flex-wrap gap-2 py-2"></div>
+            <button type="submit" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold">حفظ الطالب</button>
+            <button type="button" onclick="closeModal()" class="w-full text-slate-400 text-sm">إلغاء</button>
         </form>
     </div>
 
     <script>
-        // Charts
+        // إحصائيات حقيقية
         const stats = <%- JSON.stringify(stats) %>;
         new Chart(document.getElementById('cycleChart'), {
             type: 'doughnut',
             data: { labels: ['إبتدائي', 'متوسط', 'ثانوي'], datasets: [{ data: stats.cycleData, backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'], borderWeight: 0 }] },
-            options: { cutout: '75%', plugins: { legend: { display: false } } }
+            options: { cutout: '80%', plugins: { legend: { display: false } } }
         });
 
         new Chart(document.getElementById('incomeChart'), {
             type: 'line',
-            data: { labels: ['1', '2', '3', '4', '5'], datasets: [{ data: stats.incomeData, borderColor: '#3b82f6', tension: 0.4, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.05)' }] },
+            data: { labels: ['S', 'O', 'N', 'D', 'J'], datasets: [{ data: stats.incomeData, borderColor: '#4f46e5', tension: 0.4, fill: true, backgroundColor: 'rgba(79, 70, 229, 0.05)' }] },
             options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
         });
 
-        // Functions
-        function showView(id) {
+        // وظائف الواجهة
+        function tab(id) {
             document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
 
-        function loadYears() {
-            const c = document.getElementById('cycle').value;
-            const y = document.getElementById('year');
-            const subC = document.getElementById('subContainer');
-            y.innerHTML = '';
-            subC.innerHTML = '';
-            const years = c === 'ابتدائي' ? 5 : (c === 'متوسط' ? 4 : 3);
-            for(let i=1; i<=years; i++) y.innerHTML += `<option>السنة ${i}</option>`;
+        function loadOptions() {
+            const c = document.getElementById('cSel').value;
+            const y = document.getElementById('ySel');
+            const sl = document.getElementById('subList');
+            y.innerHTML = ''; sl.innerHTML = '';
+            const count = c === 'ابتدائي' ? 5 : (c === 'متوسط' ? 4 : 3);
+            for(let i=1; i<=count; i++) y.innerHTML += `<option>السنة ${i}</option>`;
             
-            const subs = { 'ابتدائي': ['عربية', 'فرنسية'], 'متوسط': ['رياضيات', 'فيزياء', 'عربية'], 'ثانوي': ['رياضيات', 'فيزياء', 'فلسفة', 'علوم'] };
-            subs[c].forEach(s => {
-                subC.innerHTML += `<label class="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl text-[10px] border cursor-pointer">
-                    <input type="checkbox" name="subjects" value="${s}"> ${s}
-                </label>`;
-            });
+            const subs = { 'ابتدائي': ['عربية', 'رياضيات'], 'متوسط': ['فيزياء', 'رياضيات', 'علوم'], 'ثانوي': ['فلسفة', 'رياضيات', 'فيزياء'] };
+            subs[c]?.forEach(s => sl.innerHTML += `<label class="bg-slate-100 p-2 rounded-xl text-[10px]"><input type="checkbox" name="subjects" value="${s}"> ${s}</label>`);
         }
 
-        async function updateAtt(id, subIndex, attIndex, btn) {
+        async function updateAtt(id, sIdx, aIdx, btn) {
             const isVal = !btn.classList.contains('checked');
             const res = await fetch(`/update-sub-status/${id}`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ subIndex, type: 'attendance', attIndex, value: isVal.toString() })
+                body: JSON.stringify({ subIndex: sIdx, type: 'attendance', attIndex: aIdx, value: isVal.toString() })
             });
-            const data = await res.json();
-            if (data.reset) location.reload(); else btn.classList.toggle('checked');
+            if (res.ok) location.reload();
         }
 
-        async function togglePaid(id, subIndex, btn) {
+        async function togglePaid(id, sIdx, btn) {
             const isVal = !btn.classList.contains('bg-green-500');
-            await fetch(`/update-sub-status/${id}`, {
+            const res = await fetch(`/update-sub-status/${id}`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ subIndex, type: 'paid', value: isVal.toString() })
+                body: JSON.stringify({ subIndex: sIdx, type: 'paid', value: isVal.toString() })
             });
-            location.reload();
+            if (res.ok) location.reload();
         }
 
         function addSubjectPrompt(id) {
-            const name = prompt("اسم المادة الجديدة:");
-            const sessions = prompt("عدد الحصص:", "4");
-            if (name && sessions) {
+            const subName = prompt("اسم المادة الجديدة:");
+            const sessions = prompt("عدد الحصص (مثلاً 3 أو 4):", "4");
+            if(subName) {
                 fetch(`/add-subject/${id}`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ subName: name, sessions })
+                    body: JSON.stringify({ subName, sessions })
                 }).then(() => location.reload());
             }
         }
 
-        function filterStudents() {
-            const val = document.getElementById('search').value.toLowerCase();
-            document.querySelectorAll('.student-card').forEach(card => {
-                card.style.display = card.innerText.toLowerCase().includes(val) ? 'block' : 'none';
-            });
+        function filter() {
+            const q = document.getElementById('search').value.toLowerCase();
+            document.querySelectorAll('.card').forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none');
         }
 
         function openModal() { document.getElementById('addModal').classList.remove('hidden'); }
