@@ -1,11 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const admin = require('firebase-admin');
-const path = require('path');
 const app = express();
 
-// إعداد Firebase
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY);
 admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 const db = admin.firestore();
 
@@ -13,75 +11,53 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// --- ROUTES ---
-
-// 1. الرئيسية والإحصائيات
+// المسار الرئيسي الشامل
 app.get('/', async (req, res) => {
-    const students = await db.collection('students').get();
-    const payments = await db.collection('payments').get();
-    const sessions = await db.collection('sessions').get();
-    
-    let totalIncome = 0;
-    payments.forEach(doc => totalIncome += Number(doc.data().amount));
+    const studentsSnap = await db.collection('students').orderBy('createdAt', 'desc').get();
+    const students = studentsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    const stats = {
-        students: students.size,
-        income: totalIncome,
-        sessions: sessions.size,
-        recentStudents: students.docs.slice(0, 5).map(d => d.data())
-    };
-    res.render('index', { stats });
+    // حساب الإحصائيات للدائرة
+    const stats = { primary: 0, middle: 0, secondary: 0 };
+    students.forEach(s => {
+        if (s.cycle === 'ابتدائي') stats.primary++;
+        else if (s.cycle === 'متوسط') stats.middle++;
+        else stats.secondary++;
+    });
+
+    res.render('index', { students, stats, count: students.length });
 });
 
-// 2. إدارة الطلاب (بناءً على المنهاج الجزائري)
-app.get('/students', async (req, res) => {
-    const snap = await db.collection('students').orderBy('createdAt', 'desc').get();
-    const students = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
-    res.render('students', { students });
-});
-
-app.post('/students/add', async (req, res) => {
+// إضافة طالب جديد
+app.post('/add-student', async (req, res) => {
     await db.collection('students').add({
         ...req.body,
-        status: 'نشط',
+        attendance: [false, false, false, false], // 4 حصص شهرياً
+        paid: false,
         createdAt: new Date().toISOString()
     });
-    res.redirect('/students');
+    res.redirect('/');
 });
 
-// 3. إدارة المواد والأسعار
-app.get('/subjects', async (req, res) => {
-    const snap = await db.collection('subjects').get();
-    const subjects = snap.docs.map(doc => doc.data());
-    res.render('subjects', { subjects });
+// حذف طالب
+app.post('/delete/:id', async (req, res) => {
+    await db.collection('students').doc(req.params.id).delete();
+    res.redirect('/');
 });
 
-app.post('/subjects/add', async (req, res) => {
-    await db.collection('subjects').add(req.body);
-    res.redirect('/subjects');
-});
-
-// 4. إدارة الحصص والمدفوعات
-app.get('/sessions', async (req, res) => {
-    const sessSnap = await db.collection('sessions').get();
-    const stuSnap = await db.collection('students').get();
-    const subSnap = await db.collection('subjects').get();
-    res.render('sessions', { 
-        sessions: sessSnap.docs.map(d => d.data()),
-        students: stuSnap.docs.map(d => d.data()),
-        subjects: subSnap.docs.map(d => d.data())
-    });
-});
-
-app.post('/sessions/add', async (req, res) => {
-    await db.collection('sessions').add(req.body);
-    // إضافة سجل مدفوعات تلقائي
-    await db.collection('payments').add({
-        studentName: req.body.studentName,
-        amount: req.body.price,
-        date: new Date().toISOString()
-    });
-    res.redirect('/sessions');
+// تحديث الحضور أو الدفع عبر AJAX لسرعة الاستجابة
+app.post('/update/:id', async (req, res) => {
+    const { type, index, value } = req.body;
+    const docRef = db.collection('students').doc(req.params.id);
+    const doc = await docRef.get();
+    
+    if (type === 'attendance') {
+        let att = doc.data().attendance || [false, false, false, false];
+        att[index] = (value === 'true');
+        await docRef.update({ attendance: att });
+    } else if (type === 'paid') {
+        await docRef.update({ paid: (value === 'true') });
+    }
+    res.json({ success: true });
 });
 
 app.listen(3000, () => console.log('Server running on http://localhost:3000'));
