@@ -17,22 +17,17 @@ app.get('/', async (req, res) => {
     const snap = await db.collection('students').orderBy('createdAt', 'desc').get();
     const students = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    // إحصائيات الرسوم البيانية
     const stats = {
         total: students.length,
         primary: students.filter(s => s.cycle === 'ابتدائي').length,
         middle: students.filter(s => s.cycle === 'متوسط').length,
         secondary: students.filter(s => s.cycle === 'ثانوي').length,
         paid: students.filter(s => s.paid).length,
-        unpaid: students.filter(s => !s.paid).length,
-        // بيانات المنحنى (نمو الطلاب آخر 6 أشهر - افتراضي)
-        growth: [5, 10, 15, 25, 40, students.length] 
+        growth: [10, 20, 15, 30, 45, students.length] // بيانات افتراضية للمنحنى
     };
-
     res.render('index', { students, stats, moment });
 });
 
-// تحديث AJAX
 app.post('/update/:id', async (req, res) => {
     const { type, index, value } = req.body;
     const docRef = db.collection('students').doc(req.params.id);
@@ -57,4 +52,4 @@ app.post('/add-student', async (req, res) => {
     res.redirect('/');
 });
 
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+app.listen(3000, () => console.log('Ready at http://localhost:3000'));
