@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>المالية | أكاديمية المعالي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap'); body { font-family: 'Cairo', sans-serif; background: #f8fafc; }</style>
+</head>
+<body class="flex">
+    <main class="flex-1 p-8">
+        <h1 class="text-3xl font-bold text-slate-800 mb-8">السجلات المالية</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 rounded-3xl text-white shadow-xl">
+                <p class="opacity-80">إجمالي الأرباح المستلمة</p>
+                <h2 class="text-4xl font-bold mt-2">
+                    <%= payments.reduce((acc, curr) => acc + Number(curr.amount), 0) %> <small class="text-sm">دج</small>
+                </h2>
+                <i class="fas fa-coins float-left text-5xl opacity-20 -mt-10"></i>
+            </div>
+            
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                <p class="text-slate-500 font-bold">عدد العمليات المالية</p>
+                <h2 class="text-4xl font-bold mt-2 text-slate-800"><%= payments.length %></h2>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm overflow-hidden p-6 border border-slate-100">
+            <h3 class="font-bold text-lg mb-6">آخر الدفوعات</h3>
+            <div class="space-y-4">
+                <% payments.reverse().slice(0, 10).forEach(pay => { %>
+                <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border-r-4 border-green-500">
+                    <div>
+                        <p class="font-bold"><%= pay.studentName %></p>
+                        <p class="text-xs text-slate-400"><%= pay.date.split('T')[0] %></p>
+                    </div>
+                    <div class="text-green-600 font-bold text-lg">
+                        + <%= pay.amount %> دج
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
