@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const admin = require('firebase-admin');
-const moment = require('moment'); // تأكد من تنصيبه: npm install moment
+const moment = require('moment');
 const app = express();
 
 const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY || process.env.FIREBASE_SERVICE_ACCOUNT);
@@ -19,28 +19,20 @@ app.get('/', async (req, res) => {
 
     // إحصائيات متقدمة
     const stats = {
+        total: students.length,
         primary: students.filter(s => s.cycle === 'ابتدائي').length,
         middle: students.filter(s => s.cycle === 'متوسط').length,
         secondary: students.filter(s => s.cycle === 'ثانوي').length,
-        totalEarnings: students.filter(s => s.paid).length * 2000, // مثال لحساب الدخل
-        currentTime: moment().format('LLLL') // الوقت والتاريخ بالعربي
+        paidCount: students.filter(s => s.paid).length,
+        unpaidCount: students.filter(s => !s.paid).length,
+        // حساب نسبة الإنجاز في الحصص
+        totalAttendance: students.reduce((acc, s) => acc + (s.attendance ? s.attendance.filter(a => a).length : 0), 0)
     };
 
-    res.render('index', { students, stats, count: students.length, moment });
+    res.render('index', { students, stats, moment });
 });
 
-app.post('/add-student', async (req, res) => {
-    await db.collection('students').add({
-        ...req.body,
-        attendance: [false, false, false, false],
-        paid: false,
-        createdAt: new Date().toISOString(), // تخزين وقت التسجيل الدقيق
-        regDay: moment().format('dddd'),      // يوم التسجيل
-        regMonth: moment().format('MMMM YYYY') // شهر التسجيل
-    });
-    res.redirect('/');
-});
-
+// تحديث الحصص والدفع (AJAX)
 app.post('/update/:id', async (req, res) => {
     const { type, index, value } = req.body;
     const docRef = db.collection('students').doc(req.params.id);
@@ -55,9 +47,14 @@ app.post('/update/:id', async (req, res) => {
     res.json({ success: true });
 });
 
-app.post('/delete/:id', async (req, res) => {
-    await db.collection('students').doc(req.params.id).delete();
+app.post('/add-student', async (req, res) => {
+    await db.collection('students').add({
+        ...req.body,
+        attendance: [false, false, false, false],
+        paid: false,
+        createdAt: new Date().toISOString()
+    });
     res.redirect('/');
 });
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+app.listen(3000, () => console.log('Server running on http://localhost:3000'));
