@@ -4,7 +4,6 @@ const admin = require('firebase-admin');
 const moment = require('moment');
 const app = express();
 
-// إعداد Firebase
 const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY || process.env.FIREBASE_SERVICE_ACCOUNT);
 if (!admin.apps.length) admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 const db = admin.firestore();
@@ -14,22 +13,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
 
-// الصفحة الرئيسية
 app.get('/', async (req, res) => {
     const snap = await db.collection('students').orderBy('createdAt', 'desc').get();
     const students = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
     const stats = {
         total: students.length,
-        primary: students.filter(s => s.cycle === 'ابتدائي').length,
-        middle: students.filter(s => s.cycle === 'متوسط').length,
         secondary: students.filter(s => s.cycle === 'ثانوي').length,
-        paid: students.filter(s => s.paid).length
+        unpaid: students.filter(s => !s.paid).length,
+        incomeData: [12000, 19000, 15000, 25000, 32000] // بيانات تجريبية للمنحنى المالي
     };
     res.render('index', { students, stats, moment });
 });
 
-// تحديث الحضور والدفع (المنطق الذكي للدورة الشهرية)
+// تحديث ذكي: الحصص تقود النظام المالي
 app.post('/update/:id', async (req, res) => {
     const { type, index, value } = req.body;
     const docRef = db.collection('students').doc(req.params.id);
@@ -39,24 +36,19 @@ app.post('/update/:id', async (req, res) => {
     if (type === 'attendance') {
         let att = data.attendance || [false, false, false, false];
         att[index] = (value === 'true');
-
-        // إذا أصبحت كل الحصص (صح)، يتم تصفير الشهر وتغيير حالة الدفع
-        if (att.every(h => h === true)) {
-            await docRef.update({ 
-                attendance: [false, false, false, false], 
-                paid: false 
-            });
-            return res.json({ success: true, reset: true });
-        } else {
-            await docRef.update({ attendance: att });
+        
+        // إذا اكتملت 4 حصص -> تصفير آلي لشهر جديد + مطالبة بالدفع
+        if (att.every(v => v === true)) {
+            await docRef.update({ attendance: [false, false, false, false], paid: false });
+            return res.json({ success: true, cycleReset: true });
         }
+        await docRef.update({ attendance: att });
     } else {
         await docRef.update({ paid: (value === 'true') });
     }
-    res.json({ success: true, reset: false });
+    res.json({ success: true });
 });
 
-// إضافة طالب جديد
 app.post('/add-student', async (req, res) => {
     await db.collection('students').add({
         ...req.body,
@@ -67,10 +59,9 @@ app.post('/add-student', async (req, res) => {
     res.redirect('/');
 });
 
-// حذف طالب (تم الإصلاح)
 app.post('/delete/:id', async (req, res) => {
     await db.collection('students').doc(req.params.id).delete();
     res.redirect('/');
 });
 
-app.listen(3000, () => console.log('Maali System Started on Port 3000'));
+app.listen(3000, () => console.log('Maali Academy Pro Active'));
