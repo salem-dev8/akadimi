@@ -1,0 +1,104 @@
+<div class="max-w-5xl mx-auto p-8">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl font-bold text-slate-800">إدارة شؤون الطلاب</h2>
+        <button onclick="openModal()" class="bg-blue-600 text-white px-8 py-3 rounded-2xl shadow-lg hover:scale-105 transition-all">+ إضافة طالب</button>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
+        <table class="w-full text-right border-collapse">
+            <thead class="bg-slate-900 text-white">
+                <tr>
+                    <th class="p-5">الطالب</th>
+                    <th class="p-5">الطور</th>
+                    <th class="p-5">السنة / الشعبة</th>
+                    <th class="p-5">تاريخ التسجيل</th>
+                    <th class="p-5">الحالة</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% students.forEach(s => { %>
+                <tr class="border-b hover:bg-blue-50 transition">
+                    <td class="p-5 font-bold"><%= s.name %></td>
+                    <td class="p-5"><span class="px-3 py-1 bg-slate-100 rounded-full text-xs font-bold text-slate-600"><%= s.cycle %></span></td>
+                    <td class="p-5"><%= s.year %> <%= s.stream ? '(' + s.stream + ')' : '' %></td>
+                    <td class="p-5 text-slate-500 text-sm"><%= s.createdAt.split('T')[0] %></td>
+                    <td class="p-5"><span class="text-green-600 font-bold italic">● <%= s.status %></span></td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl">
+        <form action="/students/add" method="POST" class="p-8">
+            <h3 class="text-2xl font-bold mb-6 text-center text-blue-600">تسجيل طالب جديد</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                    <label class="block font-bold mb-2">الاسم الكامل</label>
+                    <input name="name" required class="w-full border-2 border-slate-100 p-4 rounded-2xl focus:border-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold mb-2">الطور التعليمي</label>
+                    <select id="cycle" name="cycle" onchange="updateYears()" class="w-full border-2 border-slate-100 p-4 rounded-2xl outline-none">
+                        <option value="">اختر الطور</option>
+                        <option value="ابتدائي">ابتدائي (5 سنوات)</option>
+                        <option value="متوسط">متوسط (4 سنوات)</option>
+                        <option value="ثانوي">ثانوي (3 سنوات)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold mb-2">السنة الدراسية</label>
+                    <select id="year" name="year" onchange="checkSecondary()" class="w-full border-2 border-slate-100 p-4 rounded-2xl outline-none"></select>
+                </div>
+                <div id="streamBox" class="md:col-span-2 hidden">
+                    <label class="block font-bold mb-2 text-red-500">الشعبة الدراسية</label>
+                    <select name="stream" class="w-full border-2 border-red-100 p-4 rounded-2xl outline-none">
+                        <option value="علوم تجريبية">علوم تجريبية</option>
+                        <option value="رياضيات">رياضيات</option>
+                        <option value="تقني رياضي">تقني رياضي</option>
+                        <option value="تسيير واقتصاد">تسيير واقتصاد</option>
+                        <option value="آداب وفلسفة">آداب وفلسفة</option>
+                        <option value="لغات أجنبية">لغات أجنبية</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-8 flex gap-4">
+                <button type="submit" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-blue-700">تأكيد التسجيل</button>
+                <button type="button" onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-500 py-4 rounded-2xl font-bold">إلغاء</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal() { document.getElementById('modal').classList.remove('hidden'); }
+    function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+
+    const yearsData = {
+        "ابتدائي": ["الأولى", "الثانية", "الثالثة", "الرابعة", "الخامسة"],
+        "متوسط": ["الأولى", "الثانية", "الثالثة", "الرابعة"],
+        "ثانوي": ["الأولى", "الثانية", "الثالثة"]
+    };
+
+    function updateYears() {
+        const cycle = document.getElementById('cycle').value;
+        const yearSelect = document.getElementById('year');
+        yearSelect.innerHTML = "";
+        if(yearsData[cycle]) {
+            yearsData[cycle].forEach(y => {
+                let opt = document.createElement('option');
+                opt.value = y; opt.innerHTML = y;
+                yearSelect.appendChild(opt);
+            });
+        }
+        checkSecondary();
+    }
+
+    function checkSecondary() {
+        const cycle = document.getElementById('cycle').value;
+        const streamBox = document.getElementById('streamBox');
+        (cycle === "ثانوي") ? streamBox.classList.remove('hidden') : streamBox.classList.add('hidden');
+    }
+</script>
