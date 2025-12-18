@@ -17,27 +17,24 @@ app.get('/', async (req, res) => {
     const snap = await db.collection('students').orderBy('createdAt', 'desc').get();
     const students = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    // إحصائيات متقدمة
     const stats = {
         total: students.length,
         primary: students.filter(s => s.cycle === 'ابتدائي').length,
         middle: students.filter(s => s.cycle === 'متوسط').length,
         secondary: students.filter(s => s.cycle === 'ثانوي').length,
         paidCount: students.filter(s => s.paid).length,
-        unpaidCount: students.filter(s => !s.paid).length,
-        // حساب نسبة الإنجاز في الحصص
-        totalAttendance: students.reduce((acc, s) => acc + (s.attendance ? s.attendance.filter(a => a).length : 0), 0)
+        attendanceRate: students.length ? Math.round((students.reduce((acc, s) => acc + (s.attendance ? s.attendance.filter(a => a).length : 0), 0) / (students.length * 4)) * 100) : 0
     };
 
     res.render('index', { students, stats, moment });
 });
 
-// تحديث الحصص والدفع (AJAX)
+// تحديث AJAX للحضور والدفع
 app.post('/update/:id', async (req, res) => {
     const { type, index, value } = req.body;
     const docRef = db.collection('students').doc(req.params.id);
+    const doc = await docRef.get();
     if (type === 'attendance') {
-        const doc = await docRef.get();
         let att = doc.data().attendance || [false, false, false, false];
         att[index] = (value === 'true');
         await docRef.update({ attendance: att });
@@ -57,4 +54,4 @@ app.post('/add-student', async (req, res) => {
     res.redirect('/');
 });
 
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+app.listen(3000, () => console.log('Maali System Running on http://localhost:3000'));
