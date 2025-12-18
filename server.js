@@ -22,10 +22,19 @@ app.get('/', async (req, res) => {
         primary: students.filter(s => s.cycle === 'ابتدائي').length,
         middle: students.filter(s => s.cycle === 'متوسط').length,
         secondary: students.filter(s => s.cycle === 'ثانوي').length,
-        paid: students.filter(s => s.paid).length,
-        growth: [10, 20, 15, 30, 45, students.length] // بيانات افتراضية للمنحنى
+        paid: students.filter(s => s.paid).length
     };
     res.render('index', { students, stats, moment });
+});
+
+// مسار حذف الطالب (تم الإصلاح)
+app.post('/delete/:id', async (req, res) => {
+    try {
+        await db.collection('students').doc(req.params.id).delete();
+        res.redirect('/');
+    } catch (error) {
+        res.status(500).send("خطأ في الحذف");
+    }
 });
 
 app.post('/update/:id', async (req, res) => {
@@ -52,4 +61,4 @@ app.post('/add-student', async (req, res) => {
     res.redirect('/');
 });
 
-app.listen(3000, () => console.log('Ready at http://localhost:3000'));
+app.listen(3000, () => console.log('Server Start: Port 3000'));
