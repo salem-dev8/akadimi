@@ -2,217 +2,227 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أكاديمية المعالي | النظام المتكامل</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>أكاديمية المعالي PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-        body { font-family: 'Cairo', sans-serif; background: #f8fafc; overflow-x: hidden; }
-        .view-section { display: none; animation: fadeIn 0.4s ease-out; }
+        body { font-family: 'Cairo', sans-serif; background: #f4f7fa; -webkit-tap-highlight-color: transparent; }
+        .view-section { display: none; animation: slideUp 0.3s ease-out; }
         .view-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .sidebar { transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; }
         .sidebar.closed { transform: translateX(100%); }
+        .compact-btn { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
+        .attendance-dot { width: 32px; height: 32px; border-radius: 10px; border: 2px solid #e2e8f0; transition: 0.2s; }
+        .active-dot { background: #10b981 !important; border-color: #10b981 !important; color: white; transform: scale(0.9); }
     </style>
 </head>
-<body class="pt-24">
+<body class="pt-16 md:pt-20">
 
-    <nav class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b h-20 flex items-center justify-between px-6 z-[1001]">
-        <div class="flex items-center gap-4">
-            <button onclick="toggleSidebar()" class="p-3 hover:bg-slate-100 rounded-2xl text-slate-600 text-xl"><i class="fas fa-bars"></i></button>
-            <div class="flex items-center gap-3">
-                <img src="https://res.cloudinary.com/duixjs8az/image/upload/v1765132270/post_media/1765132269901-1765132158292.jpg" class="w-12 h-12 rounded-full border-2 border-blue-600 shadow-md">
-                <h1 class="text-xl font-900 text-slate-800">أكاديمية المعالي</h1>
-            </div>
+    <nav class="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md border-b h-16 flex items-center justify-between px-4 z-[1001]">
+        <div class="flex items-center gap-3">
+            <button onclick="toggleSidebar()" class="p-2 text-slate-600"><i class="fas fa-bars text-lg"></i></button>
+            <img src="https://res.cloudinary.com/duixjs8az/image/upload/v1765132270/post_media/1765132269901-1765132158292.jpg" class="w-10 h-10 rounded-full border border-blue-500">
+            <h1 class="text-sm font-900 text-slate-800 hidden xs:block">أكاديمية المعالي</h1>
         </div>
-        <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold shadow-lg flex items-center gap-2">
-            <i class="fas fa-plus-circle"></i> <span>تسجيل طالب</span>
+        <button onclick="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md active:scale-95 transition">
+            <i class="fas fa-plus ml-1"></i> تسجيل
         </button>
     </nav>
 
-    <aside id="sidebar" class="sidebar closed fixed top-0 right-0 w-80 h-full bg-slate-900 text-white p-8 shadow-2xl">
-        <div class="flex justify-between items-center mb-10">
-            <h2 class="text-xl font-900 text-blue-400">القائمة الرئيسية</h2>
-            <button onclick="toggleSidebar()" class="text-slate-400"><i class="fas fa-times text-2xl"></i></button>
+    <aside id="sidebar" class="sidebar closed fixed top-0 right-0 w-72 h-full bg-slate-900 text-white p-6 shadow-2xl">
+        <div class="flex justify-between items-center mb-8">
+            <span class="font-900 text-blue-400">القائمة</span>
+            <button onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
         </div>
-        <nav class="space-y-4">
-            <button onclick="showView('statsView')" class="w-full flex items-center gap-4 p-4 hover:bg-white/10 rounded-2xl transition font-bold"><i class="fas fa-chart-line text-blue-400"></i> واجهة الإحصائيات</button>
-            <button onclick="showView('attendanceView')" class="w-full flex items-center gap-4 p-4 hover:bg-white/10 rounded-2xl transition font-bold"><i class="fas fa-calendar-check text-green-400"></i> واجهة الحصص</button>
-            <button onclick="showView('studentsView')" class="w-full flex items-center gap-4 p-4 hover:bg-white/10 rounded-2xl transition font-bold"><i class="fas fa-user-graduate text-orange-400"></i> واجهة الطلاب</button>
-        </nav>
+        <div class="space-y-2">
+            <button onclick="showView('statsView')" class="w-full text-right p-3 hover:bg-white/5 rounded-xl flex items-center gap-3 text-sm"><i class="fas fa-chart-bar w-5"></i> الإحصائيات</button>
+            <button onclick="showView('attendanceView')" class="w-full text-right p-3 hover:bg-white/5 rounded-xl flex items-center gap-3 text-sm"><i class="fas fa-check-double w-5"></i> الحصص والدفع</button>
+            <button onclick="showView('studentsView')" class="w-full text-right p-3 hover:bg-white/5 rounded-xl flex items-center gap-3 text-sm"><i class="fas fa-users w-5"></i> قائمة الطلاب</button>
+        </div>
     </aside>
 
-    <div class="max-w-7xl mx-auto px-4 pb-20">
+    <div class="max-w-4xl mx-auto px-3 py-6">
 
-        <section id="statsView" class="view-section active">
-            <h2 class="text-3xl font-900 mb-8 text-slate-800 border-r-8 border-blue-600 pr-4">لوحة التحليلات البيانية</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                    <h3 class="font-bold text-xl mb-6">منحنى نمو التسجيلات</h3>
-                    <canvas id="lineChart" class="h-64"></canvas>
+        <section id="statsView" class="view-section active space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border-b-2 border-blue-500">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">الطلاب</p>
+                    <h3 class="text-xl font-900"><%= stats.total %></h3>
                 </div>
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col items-center">
-                    <h3 class="font-bold text-xl mb-6">نسبة الأطوار التعليمية</h3>
-                    <div class="w-64 h-64"><canvas id="pieChart"></canvas></div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border-b-2 border-green-500">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">المدفوعات</p>
+                    <h3 class="text-xl font-900"><%= stats.paid %></h3>
                 </div>
+            </div>
+            
+            <div class="bg-white p-4 rounded-3xl shadow-sm">
+                <h3 class="text-xs font-bold mb-4 opacity-50">توزيع الأطوار</h3>
+                <div class="h-48 flex justify-center"><canvas id="pieChart"></canvas></div>
+            </div>
+
+            <div class="bg-white p-4 rounded-3xl shadow-sm">
+                <h3 class="text-xs font-bold mb-4 opacity-50">نمو التسجيلات</h3>
+                <canvas id="lineChart" class="h-40"></canvas>
             </div>
             
         </section>
 
-        <section id="attendanceView" class="view-section">
-            <h2 class="text-3xl font-900 mb-8 text-slate-800 border-r-8 border-green-600 pr-4">متابعة الحصص الأربعة</h2>
-            <div class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-slate-100">
-                <table class="w-full text-right">
-                    <thead class="bg-slate-900 text-white text-xs uppercase">
-                        <tr>
-                            <th class="p-6">الطالب والمادة</th>
-                            <th class="p-6 text-center">حصة 1</th><th class="p-6 text-center">حصة 2</th>
-                            <th class="p-6 text-center">حصة 3</th><th class="p-6 text-center">حصة 4</th>
-                            <th class="p-6 text-center">الحالة المالية</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        <% students.forEach(s => { %>
-                        <tr class="hover:bg-blue-50/30">
-                            <td class="p-6">
-                                <span class="font-bold block text-slate-800"><%= s.name %></span>
-                                <span class="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-md font-bold"><%= s.subject %></span>
-                            </td>
-                            <% for(let i=0; i<4; i++) { %>
-                            <td class="p-6 text-center">
-                                <button onclick="updateAjax('<%= s.id %>', 'attendance', <%= i %>, this)" 
-                                    class="w-8 h-8 rounded-lg border-2 transition-all <%= s.attendance && s.attendance[i] ? 'bg-green-500 border-green-500 text-white shadow-lg' : 'bg-white border-slate-200 text-transparent' %>">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                            </td>
-                            <% } %>
-                            <td class="p-6 text-center">
-                                <button onclick="updateAjax('<%= s.id %>', 'paid', null, this)" 
-                                    class="px-6 py-2 rounded-xl text-xs font-900 transition-all <%= s.paid ? 'bg-blue-600 text-white' : 'bg-red-50 text-red-600 border border-red-100' %>">
-                                    <%= s.paid ? 'تم الدفع' : 'غير خالص' %>
-                                </button>
-                            </td>
-                        </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section id="studentsView" class="view-section">
-            <h2 class="text-3xl font-900 mb-8 text-slate-800 border-r-8 border-orange-600 pr-4">إدارة بيانات الطلاب</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <% students.forEach(s => { %>
-                <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm relative group">
-                    <form action="/delete/<%= s.id %>" method="POST" class="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition">
-                        <button class="text-red-300 hover:text-red-500"><i class="fas fa-trash"></i></button>
-                    </form>
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-xl"><%= s.name[0] %></div>
-                        <div>
-                            <h4 class="font-900 text-slate-800"><%= s.name %></h4>
-                            <p class="text-xs text-slate-400"><%= s.cycle %> - <%= s.year %></p>
-                        </div>
+        <section id="attendanceView" class="view-section space-y-3">
+            <h2 class="text-lg font-900 mb-4 px-2 tracking-tight text-slate-700">متابعة الحصص والدفع</h2>
+            <% students.forEach(s => { %>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h4 class="font-900 text-sm text-slate-800"><%= s.name %></h4>
+                        <p class="text-[10px] text-blue-500 font-bold"><%= s.subject %> • <%= s.year %></p>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-[10px] bg-slate-100 p-2 rounded-lg font-bold">المادة: <%= s.subject %></span>
-                        <% if(s.stream) { %><span class="text-[10px] bg-purple-100 text-purple-600 p-2 rounded-lg font-bold">الشعبة: <%= s.stream %></span><% } %>
+                    <button onclick="updateAjax('<%= s.id %>', 'paid', null, this)" 
+                        class="compact-btn rounded-lg font-bold transition-all <%= s.paid ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-600' %>">
+                        <%= s.paid ? 'خالص' : 'لم يدفع' %>
+                    </button>
+                </div>
+                <div class="flex justify-between items-center pt-2 border-t border-slate-50">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">الحصص الـ 4:</span>
+                    <div class="flex gap-2">
+                        <% for(let i=0; i<4; i++) { %>
+                        <button onclick="updateAjax('<%= s.id %>', 'attendance', <%= i %>, this)" 
+                            class="attendance-dot flex items-center justify-center text-[10px] <%= s.attendance && s.attendance[i] ? 'active-dot' : '' %>">
+                            <%= i+1 %>
+                        </button>
+                        <% } %>
                     </div>
                 </div>
-                <% }) %>
             </div>
+            <% }) %>
+        </section>
+
+        <section id="studentsView" class="view-section space-y-3">
+            <% students.forEach(s => { %>
+            <div class="bg-white p-3 rounded-2xl flex items-center justify-between shadow-sm border border-slate-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center font-bold text-blue-600 text-sm"><%= s.name[0] %></div>
+                    <div>
+                        <p class="text-xs font-900"><%= s.name %></p>
+                        <p class="text-[9px] text-slate-400"><%= s.cycle %> • <%= s.stream || 'عام' %></p>
+                    </div>
+                </div>
+                <form action="/delete/<%= s.id %>" method="POST" onsubmit="return confirm('حذف؟')">
+                    <button class="text-slate-300 p-2"><i class="fas fa-trash-alt text-xs"></i></button>
+                </form>
+            </div>
+            <% }) %>
         </section>
     </div>
 
-    <div id="addModal" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-md z-[2000] flex items-center justify-center p-4">
-        <form action="/add-student" method="POST" class="bg-white w-full max-w-2xl p-10 rounded-[3rem] shadow-2xl">
-            <h2 class="text-3xl font-900 mb-8 text-blue-900 border-r-8 border-blue-600 pr-4">إستمارة تسجيل ذكية</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <input name="name" type="text" placeholder="الاسم واللقب" class="w-full bg-slate-50 p-4 rounded-2xl outline-none" required>
-                    <select id="cycleSel" name="cycle" onchange="updateOptions()" class="w-full bg-slate-50 p-4 rounded-2xl outline-none" required>
-                        <option value="">اختر الطور</option>
-                        <option>ابتدائي</option><option>متوسط</option><option>ثانوي</option>
-                    </select>
-                    <select id="yearSel" name="year" class="w-full bg-slate-50 p-4 rounded-2xl outline-none" required>
-                        <option value="">اختر السنة</option>
-                    </select>
-                </div>
-                <div class="space-y-4">
-                    <select id="streamSel" name="stream" class="w-full bg-slate-50 p-4 rounded-2xl outline-none hidden">
-                        <option value="">اختر الشعبة</option>
-                        <option>علوم تجريبية</option><option>رياضيات</option><option>لغات أجنبية</option>
-                        <option>تسيير واقتصاد</option><option>آداب وفلسفة</option>
-                    </select>
-                    <select name="subject" class="w-full bg-slate-50 p-4 rounded-2xl outline-none" required>
-                        <option value="">اختر المادة</option>
-                        <option>رياضيات</option><option>فيزياء</option><option>علوم</option>
-                        <option>فلسفة</option><option>لغة عربية</option>
-                    </select>
-                </div>
+    <div id="addModal" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm z-[2000] flex items-end md:items-center justify-center">
+        <form action="/add-student" method="POST" class="bg-white w-full md:max-w-lg p-6 rounded-t-[2rem] md:rounded-[2rem] shadow-2xl space-y-4">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-4 md:hidden"></div>
+            <h2 class="text-xl font-900 text-slate-800">تسجيل طالب جديد</h2>
+            
+            <input name="name" type="text" placeholder="الاسم واللقب" class="w-full bg-slate-50 p-3 rounded-xl text-sm outline-none border border-slate-100" required>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <select id="cycleSel" name="cycle" onchange="handleCycleChange()" class="bg-slate-50 p-3 rounded-xl text-sm border-none outline-none" required>
+                    <option value="">الطور</option>
+                    <option>ابتدائي</option><option>متوسط</option><option>ثانوي</option>
+                </select>
+                <select id="yearSel" name="year" class="bg-slate-50 p-3 rounded-xl text-sm border-none outline-none" required>
+                    <option value="">السنة</option>
+                </select>
             </div>
-            <div class="mt-10 flex gap-4">
-                <button type="submit" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold text-lg shadow-lg">تأكيد التسجيل</button>
-                <button type="button" onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-500 py-4 rounded-2xl font-bold">إلغاء</button>
+
+            <select id="streamSel" name="stream" onchange="handleStreamChange()" class="w-full bg-slate-50 p-3 rounded-xl text-sm hidden border-none outline-none">
+                <option value="">الشعبة</option>
+                <option>علوم تجريبية</option><option>رياضيات</option><option>تقني رياضي</option>
+                <option>تسيير واقتصاد</option><option>آداب وفلسفة</option><option>لغات أجنبية</option>
+            </select>
+
+            <select id="subjectSel" name="subject" class="w-full bg-slate-50 p-3 rounded-xl text-sm border-none outline-none" required>
+                <option value="">المادة</option>
+            </select>
+
+            <div class="flex gap-3 pt-2">
+                <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg">حفظ</button>
+                <button type="button" onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-500 py-3 rounded-xl font-bold text-sm">إلغاء</button>
             </div>
         </form>
     </div>
 
     <script>
-        // نظام التبديل بين الواجهات
-        function showView(viewId) {
+        // المواد حسب الشعبة والطور
+        const subjectsData = {
+            "ابتدائي": ["لغة عربية", "رياضيات", "فرنسية"],
+            "متوسط": ["رياضيات", "فيزياء", "علوم طبيعية", "لغة عربية", "فرنسية", "إنجليزية"],
+            "علوم تجريبية": ["علوم طبيعية (أساسية)", "فيزياء", "رياضيات", "فلسفة"],
+            "رياضيات": ["رياضيات (أساسية)", "فيزياء", "علوم طبيعية"],
+            "تقني رياضي": ["هندسة", "رياضيات", "فيزياء"],
+            "تسيير واقتصاد": ["محاسبة", "اقتصاد", "رياضيات", "قانون"],
+            "آداب وفلسفة": ["فلسفة (أساسية)", "لغة عربية", "تاريخ وجغرافيا"],
+            "لغات أجنبية": ["لغة أجنبية 3", "فرنسية", "إنجليزية", "فلسفة"]
+        };
+
+        function handleCycleChange() {
+            const cycle = document.getElementById('cycleSel').value;
+            const yearSel = document.getElementById('yearSel');
+            const streamSel = document.getElementById('streamSel');
+            const subSel = document.getElementById('subjectSel');
+
+            // تحديث السنوات
+            yearSel.innerHTML = '<option value="">السنة</option>';
+            const years = cycle === "ابتدائي" ? [1,2,3,4,5] : cycle === "متوسط" ? [1,2,3,4] : [1,2,3];
+            years.forEach(y => yearSel.innerHTML += `<option>السنة ${y}</option>`);
+
+            // إظهار الشعبة للثانوي فقط
+            streamSel.classList.toggle('hidden', cycle !== 'ثانوي');
+            
+            // تحديث المواد الافتراضية
+            subSel.innerHTML = '<option value="">المادة</option>';
+            if(subjectsData[cycle]) subjectsData[cycle].forEach(s => subSel.innerHTML += `<option>${s}</option>`);
+        }
+
+        function handleStreamChange() {
+            const stream = document.getElementById('streamSel').value;
+            const subSel = document.getElementById('subjectSel');
+            subSel.innerHTML = '<option value="">المادة</option>';
+            if(subjectsData[stream]) subjectsData[stream].forEach(s => subSel.innerHTML += `<option>${s}</option>`);
+        }
+
+        function showView(id) {
             document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-            if (window.innerWidth < 768) toggleSidebar();
+            document.getElementById(id).classList.add('active');
+            if(window.innerWidth < 768) toggleSidebar();
         }
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('closed'); }
         function openModal() { document.getElementById('addModal').classList.remove('hidden'); }
         function closeModal() { document.getElementById('addModal').classList.add('hidden'); }
 
-        // الرسوم البيانية
-        new Chart(document.getElementById('lineChart'), {
-            type: 'line',
-            data: {
-                labels: ['جويلية', 'أوت', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
-                datasets: [{ label: 'الطلاب', data: [<%= stats.growth.join(',') %>], borderColor: '#3b82f6', tension: 0.4, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.1)' }]
-            }
-        });
-
+        // الرسوم البيانية (مصغرة)
+        const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
         new Chart(document.getElementById('pieChart'), {
             type: 'doughnut',
-            data: {
-                labels: ['ابتدائي', 'متوسط', 'ثانوي'],
-                datasets: [{ data: [<%= stats.primary %>, <%= stats.middle %>, <%= stats.secondary %>], backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'] }]
-            },
-            options: { cutout: '70%' }
+            data: { labels: ['إبتدائي', 'متوسط', 'ثانوي'], datasets: [{ data: [<%= stats.primary %>, <%= stats.middle %>, <%= stats.secondary %>], backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'] }] },
+            options: { cutout: '75%', ...chartOptions }
         });
-
-        // نظام الاختيارات الديناميكي
-        function updateOptions() {
-            const cycle = document.getElementById('cycleSel').value;
-            const years = { "ابتدائي": ["1", "2", "3", "4", "5"], "متوسط": ["1", "2", "3", "4"], "ثانوي": ["1", "2", "3"] };
-            const ySel = document.getElementById('yearSel');
-            const sSel = document.getElementById('streamSel');
-            
-            ySel.innerHTML = '<option value="">اختر السنة</option>';
-            if(years[cycle]) years[cycle].forEach(y => ySel.innerHTML += `<option>السنة ${y}</option>`);
-            sSel.classList.toggle('hidden', cycle !== 'ثانوي');
-        }
+        new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            data: { labels: ['1', '2', '3', '4', '5', '6'], datasets: [{ data: [<%= stats.growth.join(',') %>], borderColor: '#3b82f6', tension: 0.4, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.05)' }] },
+            options: chartOptions
+        });
 
         async function updateAjax(id, type, index, btn) {
             let val;
             if(type === 'attendance') {
-                val = !btn.classList.contains('bg-green-500');
-                btn.classList.toggle('bg-green-500');
-                btn.classList.toggle('border-green-500');
-                btn.classList.toggle('text-white');
+                val = !btn.classList.contains('active-dot');
+                btn.classList.toggle('active-dot');
             } else {
-                val = btn.innerText.includes('غير خالص');
-                btn.innerText = val ? 'تم الدفع' : 'غير خالص';
-                btn.className = `px-6 py-2 rounded-xl text-xs font-900 transition-all ${val ? 'bg-blue-600 text-white' : 'bg-red-50 text-red-600 border border-red-100'}`;
+                val = btn.innerText.includes('لم يدفع');
+                btn.innerText = val ? 'خالص' : 'لم يدفع';
+                btn.className = `compact-btn rounded-lg font-bold transition-all ${val ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-600'}`;
             }
             await fetch(`/update/${id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, index, value: val.toString() }) });
         }
