@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>أكاديمية المعالي | الرئيسية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; }
+        .sidebar-item:hover { background: #1e293b; border-left: 4px solid #3b82f6; }
+    </style>
+</head>
+<body class="flex min-h-screen">
+    <div class="w-64 bg-slate-900 text-white p-6 hidden md:block">
+        <div class="text-2xl font-bold text-blue-400 mb-10 px-4">أكاديمية المعالي</div>
+        <nav class="space-y-2">
+            <a href="/" class="block p-4 rounded-xl bg-blue-600"><i class="fas fa-th-large ml-2"></i> الإحصائيات</a>
+            <a href="/students" class="block p-4 rounded-xl sidebar-item"><i class="fas fa-user-graduate ml-2"></i> الطلاب</a>
+            <a href="/subjects" class="block p-4 rounded-xl sidebar-item"><i class="fas fa-book ml-2"></i> المواد</a>
+            <a href="/sessions" class="block p-4 rounded-xl sidebar-item"><i class="fas fa-calendar-alt ml-2"></i> الحصص</a>
+        </nav>
+    </div>
+
+    <main class="flex-1 p-8">
+        <header class="flex justify-between items-center mb-10">
+            <h1 class="text-3xl font-bold text-slate-800 underline decoration-blue-500">لوحة التحكم</h1>
+            <div class="flex items-center gap-4 bg-white p-2 px-4 rounded-full shadow-sm">
+                <span class="font-bold">مدير النظام</span>
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">A</div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border-t-8 border-blue-500">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-slate-500">إجمالي الطلاب</p>
+                        <h2 class="text-4xl font-bold mt-2"><%= stats.students %></h2>
+                    </div>
+                    <i class="fas fa-users text-4xl text-blue-100"></i>
+                </div>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border-t-8 border-green-500">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-slate-500">المداخيل الكلية</p>
+                        <h2 class="text-4xl font-bold mt-2"><%= stats.income %> <small class="text-sm">دج</small></h2>
+                    </div>
+                    <i class="fas fa-wallet text-4xl text-green-100"></i>
+                </div>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border-t-8 border-purple-500">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-slate-500">الحصص المنجزة</p>
+                        <h2 class="text-4xl font-bold mt-2"><%= stats.sessions %></h2>
+                    </div>
+                    <i class="fas fa-chalkboard-teacher text-4xl text-purple-100"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-3xl shadow-sm">
+                <h3 class="font-bold text-lg mb-6">مخطط النمو الشهري</h3>
+                <canvas id="mainChart"></canvas>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-sm">
+                <h3 class="font-bold text-lg mb-6 text-blue-600">آخر المسجلين</h3>
+                <div class="space-y-4">
+                    <% stats.recentStudents.forEach(st => { %>
+                    <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span class="font-bold"><%= st.name %></span>
+                        </div>
+                        <span class="text-sm text-slate-500"><%= st.year %></span>
+                    </div>
+                    <% }) %>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['أكتوبر', 'نوفمبر', 'ديسمبر', 'جانفي'],
+                datasets: [{
+                    label: 'تسجيلات جديدة',
+                    data: [12, 19, 25, 40],
+                    borderColor: '#3b82f6',
+                    tension: 0.4,
+                    fill: true,
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)'
+                }]
+            }
+        });
+    </script>
+</body>
+</html>
