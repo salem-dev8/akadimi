@@ -15,29 +15,37 @@ app.get('/', async (req, res) => {
     const snap = await db.collection('students').orderBy('createdAt', 'desc').get();
     const students = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
+    // حساب إحصائيات حقيقية من قاعدة البيانات
     const cycleCounts = { 'ابتدائي': 0, 'متوسط': 0, 'ثانوي': 0 };
-    let unpaidCount = 0;
+    let unpaidTotal = 0;
+    let totalSubjects = 0;
 
     students.forEach(s => {
-        if (s.cycle && cycleCounts[s.cycle] !== undefined) cycleCounts[s.cycle]++;
-        if (s.subjects) s.subjects.forEach(sub => { if (!sub.paid) unpaidCount++; });
+        if (cycleCounts[s.cycle] !== undefined) cycleCounts[s.cycle]++;
+        if (s.subjects) {
+            s.subjects.forEach(sub => {
+                totalSubjects++;
+                if (!sub.paid) unpaidTotal++;
+            });
+        }
     });
 
     const stats = {
         total: students.length,
         cycleData: Object.values(cycleCounts),
-        unpaid: unpaidCount,
-        incomeData: [45000, 52000, 48000, 68000, 75000] // بيانات تجريبية للرسم البياني
+        unpaid: unpaidTotal,
+        activeSubjects: totalSubjects
     };
     res.render('index', { students, stats });
 });
 
 app.post('/add-student', async (req, res) => {
     try {
-        const { name, cycle, year, subjects } = req.body;
-        const subjectsData = subjects.map(s => ({
+        const { name, cycle, year, subjects, sessionsCount } = req.body;
+        const subArray = Array.isArray(subjects) ? subjects : [subjects];
+        const subjectsData = subArray.filter(s => s).map(s => ({
             name: s,
-            attendance: [false, false, false, false],
+            attendance: Array(parseInt(sessionsCount || 4)).fill(false),
             paid: false
         }));
         await db.collection('students').add({
@@ -66,4 +74,4 @@ app.post('/delete/:id', async (req, res) => {
     res.json({ success: true });
 });
 
-app.listen(3000, () => console.log('Maali App Running on http://localhost:3000'));
+app.listen(3000, () => console.log('Server Ready'));
