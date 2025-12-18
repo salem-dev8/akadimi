@@ -3,116 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أكاديمية المعالي | النظام المتكامل</title>
+    <title>أكاديمية المعالي | لوحة التحكم الذكية</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-        body { font-family: 'Cairo', sans-serif; background: #f4f6f9; }
-        .glass-header { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); }
-        .dynamic-card { transition: all 0.3s ease; }
-        .dynamic-card:hover { transform: translateY(-5px); }
+        body { font-family: 'Cairo', sans-serif; background: #f0f4f8; }
+        .sidebar-gradient { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); }
+        .stat-card { transition: transform 0.3s ease, box-shadow 0.3s ease; border-radius: 2rem; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .attendance-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .attendance-active { background-color: #10b981 !important; border-color: #10b981 !important; color: white; transform: scale(1.1); box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
     </style>
 </head>
-<body class="pb-20">
+<body class="flex flex-col md:flex-row min-h-screen">
 
-    <div class="glass-header text-white p-4 shadow-lg mb-8">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <div class="bg-blue-500 p-3 rounded-2xl shadow-inner">
-                    <i class="fas fa-clock text-xl animate-pulse"></i>
-                </div>
-                <div>
-                    <p class="text-xs opacity-70">توقيت النظام الآن</p>
-                    <p class="font-bold text-sm md:text-base" id="liveClock"><%= stats.currentTime %></p>
-                </div>
-            </div>
-            <h1 class="text-xl font-900 hidden md:block uppercase tracking-widest">Al-Maali Management System</h1>
-        </div>
-    </div>
-
-    <div class="max-w-7xl mx-auto px-4">
+    <aside class="w-full md:w-72 sidebar-gradient text-white p-6 flex flex-col items-center">
+        <img src="https://res.cloudinary.com/duixjs8az/image/upload/v1765132270/post_media/1765132269901-1765132158292.jpg" 
+             alt="Logo" class="w-32 h-32 rounded-full border-4 border-blue-500 shadow-2xl mb-4 object-cover">
+        <h1 class="text-2xl font-900 mb-8 tracking-tighter">أكاديمية المعالي</h1>
         
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-            <div class="bg-white p-6 rounded-[2rem] shadow-sm dynamic-card border-b-4 border-blue-500">
-                <p class="text-slate-400 font-bold text-xs uppercase">إجمالي الطلاب</p>
-                <h3 class="text-3xl font-900 mt-2"><%= count %></h3>
+        <nav class="w-full space-y-3">
+            <a href="#" class="flex items-center gap-3 p-4 bg-blue-600 rounded-2xl font-bold transition"><i class="fas fa-home"></i> الرئيسية</a>
+            <a href="#" onclick="openModal()" class="flex items-center gap-3 p-4 hover:bg-white/10 rounded-2xl font-bold transition"><i class="fas fa-user-plus"></i> تسجيل طالب</a>
+            <div class="pt-10">
+                <p class="text-[10px] uppercase text-slate-500 font-bold mb-2 px-4">إحصائيات سريعة</p>
+                <div class="bg-white/5 p-4 rounded-2xl space-y-3">
+                    <div class="flex justify-between text-xs"><span>نسبة الدفع:</span><span class="text-green-400 font-bold"><%= Math.round((stats.paidCount/stats.total)*100) %>%</span></div>
+                    <div class="w-full bg-slate-700 h-1.5 rounded-full"><div class="bg-green-400 h-1.5 rounded-full" style="width: <%= (stats.paidCount/stats.total)*100 %>%"></div></div>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-[2rem] shadow-sm dynamic-card border-b-4 border-green-500">
-                <p class="text-slate-400 font-bold text-xs uppercase">المستوى الابتدائي</p>
-                <h3 class="text-3xl font-900 mt-2 text-green-600"><%= stats.primary %></h3>
+        </nav>
+    </aside>
+
+    <main class="flex-1 p-4 md:p-10 overflow-y-auto">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <div class="stat-card bg-white p-6 shadow-sm border-l-8 border-blue-500">
+                <p class="text-slate-500 text-xs font-bold">إجمالي الطلاب</p>
+                <h3 class="text-3xl font-900 mt-2"><%= stats.total %></h3>
             </div>
-            <div class="bg-white p-6 rounded-[2rem] shadow-sm dynamic-card border-b-4 border-orange-500">
-                <p class="text-slate-400 font-bold text-xs uppercase">المستوى المتوسط</p>
-                <h3 class="text-3xl font-900 mt-2 text-orange-600"><%= stats.middle %></h3>
+            <div class="stat-card bg-white p-6 shadow-sm border-l-8 border-green-500">
+                <p class="text-slate-500 text-xs font-bold">تم دفع المستحقات</p>
+                <h3 class="text-3xl font-900 mt-2 text-green-600"><%= stats.paidCount %></h3>
             </div>
-            <div class="bg-white p-6 rounded-[2rem] shadow-sm dynamic-card border-b-4 border-purple-500">
-                <p class="text-slate-400 font-bold text-xs uppercase">المستوى الثانوي</p>
-                <h3 class="text-3xl font-900 mt-2 text-purple-600"><%= stats.secondary %></h3>
+            <div class="stat-card bg-white p-6 shadow-sm border-l-8 border-red-500">
+                <p class="text-slate-500 text-xs font-bold">متأخرات الدفع</p>
+                <h3 class="text-3xl font-900 mt-2 text-red-600"><%= stats.unpaidCount %></h3>
+            </div>
+            <div class="stat-card bg-white p-6 shadow-sm border-l-8 border-purple-500 text-center">
+                <div class="flex justify-center gap-2">
+                    <span class="text-[10px] font-bold text-blue-500">ب: <%= stats.primary %></span>
+                    <span class="text-[10px] font-bold text-green-500">م: <%= stats.middle %></span>
+                    <span class="text-[10px] font-bold text-orange-500">ث: <%= stats.secondary %></span>
+                </div>
+                <p class="text-slate-400 text-[10px] font-bold mt-1">توزيع الأطوار</p>
             </div>
         </div>
 
-        <div class="flex flex-wrap gap-4 mb-8">
-            <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-2xl font-900 shadow-xl transition-all">
-                <i class="fas fa-user-plus ml-2"></i> تسجيل طالب جديد
-            </button>
-            <div class="flex-1"></div>
-            <div class="bg-white px-6 py-4 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3">
-                <span class="attendance-dot bg-green-500 w-3 h-3 rounded-full"></span>
-                <p class="text-sm font-bold text-slate-600">تسجيلات شهر: <%= moment().format('MMMM YYYY') %></p>
+        <div class="bg-white rounded-[2.5rem] shadow-xl overflow-hidden">
+            <div class="p-8 border-b flex justify-between items-center bg-slate-50/50">
+                <div>
+                    <h2 class="text-2xl font-900 text-slate-800">سجل المتابعة اليومي</h2>
+                    <p class="text-xs text-slate-400 font-bold"><%= moment().format('LLLL') %></p>
+                </div>
+                <div class="flex gap-2">
+                    <div class="h-3 w-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="text-[10px] font-bold text-slate-500">النظام متصل</span>
+                </div>
             </div>
-        </div>
 
-        <div class="bg-white rounded-[2.5rem] shadow-xl overflow-hidden border border-slate-100">
             <div class="overflow-x-auto">
                 <table class="w-full text-right">
-                    <thead>
-                        <tr class="bg-slate-900 text-white">
-                            <th class="p-6">معلومات الطالب والمسار</th>
-                            <th class="p-6">تاريخ التسجيل</th>
-                            <th class="p-6 text-center">المادة</th>
-                            <th class="p-6 text-center">حصص الشهر (4)</th>
-                            <th class="p-6 text-center">الوضعية المالية</th>
-                            <th class="p-6 text-center">إدارة</th>
+                    <thead class="bg-slate-900 text-white text-xs">
+                        <tr>
+                            <th class="p-6">الطالب / المادة</th>
+                            <th class="p-6 text-center">حصة 1</th>
+                            <th class="p-6 text-center">حصة 2</th>
+                            <th class="p-6 text-center">حصة 3</th>
+                            <th class="p-6 text-center">حصة 4</th>
+                            <th class="p-6 text-center">حالة الدفع</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-slate-100 bg-white">
                         <% students.forEach(s => { %>
-                        <tr class="hover:bg-blue-50/40 transition-all group">
+                        <tr class="hover:bg-blue-50/50 transition">
                             <td class="p-6">
-                                <div class="font-900 text-slate-800 text-lg"><%= s.name %></div>
-                                <div class="flex gap-2 mt-1">
-                                    <span class="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold"><%= s.cycle %></span>
-                                    <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold"><%= s.year %></span>
-                                    <% if(s.stream) { %> <span class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-bold"><%= s.stream %></span> <% } %>
-                                </div>
+                                <div class="font-900 text-slate-800"><%= s.name %></div>
+                                <div class="text-[10px] font-bold text-blue-600 uppercase"><%= s.subject %> - <%= s.year %></div>
                             </td>
-                            <td class="p-6">
-                                <p class="text-xs font-bold text-slate-500"><%= moment(s.createdAt).format('YYYY/MM/DD') %></p>
-                                <p class="text-[10px] text-slate-400"><%= s.regDay %> - <%= moment(s.createdAt).format('HH:mm') %></p>
-                            </td>
-                            <td class="p-6 text-center font-bold text-blue-600"><%= s.subject %></td>
+                            <% for(let i=0; i<4; i++) { %>
                             <td class="p-6 text-center">
-                                <div class="flex justify-center gap-2">
-                                    <% for(let i=0; i<4; i++) { %>
-                                    <button onclick="updateStatus('<%= s.id %>', 'attendance', <%= i %>, this)" 
-                                        class="w-8 h-8 rounded-lg border-2 transition-all <%= s.attendance && s.attendance[i] ? 'bg-green-500 border-green-500 text-white shadow-lg' : 'bg-white border-slate-200 text-transparent' %>">
-                                        <i class="fas fa-check text-[10px]"></i>
-                                    </button>
-                                    <% } %>
-                                </div>
-                            </td>
-                            <td class="p-6 text-center">
-                                <button onclick="updateStatus('<%= s.id %>', 'paid', null, this)" 
-                                    class="px-5 py-2 rounded-xl text-xs font-900 transition-all shadow-sm <%= s.paid ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-50 text-red-600 border border-red-100' %>">
-                                    <%= s.paid ? 'خالص ✓' : 'غير خالص !' %>
+                                <button onclick="updateAjax('<%= s.id %>', 'attendance', <%= i %>, this)" 
+                                    class="attendance-btn w-10 h-10 rounded-xl border-2 border-slate-200 text-slate-300 hover:border-green-500
+                                    <%= s.attendance && s.attendance[i] ? 'attendance-active' : '' %>">
+                                    <i class="fas fa-check-circle"></i>
                                 </button>
                             </td>
+                            <% } %>
                             <td class="p-6 text-center">
-                                <form action="/delete/<%= s.id %>" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف السجل؟')">
-                                    <button class="text-slate-300 hover:text-red-500 transition-all transform group-hover:scale-110"><i class="fas fa-trash-alt"></i></button>
-                                </form>
+                                <button onclick="updateAjax('<%= s.id %>', 'paid', null, this)" 
+                                    class="px-6 py-2 rounded-2xl text-xs font-900 shadow-sm transition
+                                    <%= s.paid ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-600 border border-red-100' %>">
+                                    <%= s.paid ? 'تم الدفع' : 'غير خالص' %>
+                                </button>
                             </td>
                         </tr>
                         <% }) %>
@@ -120,98 +115,41 @@
                 </table>
             </div>
         </div>
-    </div>
+    </main>
 
     <div id="addModal" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <form action="/add-student" method="POST" class="bg-white w-full max-w-2xl p-8 md:p-12 rounded-[3rem] shadow-2xl relative">
-            <h2 class="text-3xl font-900 mb-8 text-slate-800 border-r-8 border-blue-600 pr-4">إستمارة التسجيل الذكية</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <label class="font-bold text-sm text-slate-500">بيانات الطالب</label>
-                    <input name="name" type="text" placeholder="الاسم واللقب" class="w-full bg-slate-50 p-4 rounded-2xl border-none focus:ring-2 ring-blue-500 outline-none" required>
-                    
-                    <select id="cycleSelect" name="cycle" onchange="updateOptions()" class="w-full bg-slate-50 p-4 rounded-2xl border-none outline-none" required>
-                        <option value="">اختر الطور</option>
-                        <option>ابتدائي</option>
-                        <option>متوسط</option>
-                        <option>ثانوي</option>
+        <form action="/add-student" method="POST" class="bg-white w-full max-w-lg p-10 rounded-[3rem] shadow-2xl">
+            <h2 class="text-2xl font-900 mb-6 text-blue-900 border-r-4 border-blue-600 pr-3">تسجيل طالب جديد</h2>
+            <div class="space-y-4">
+                <input name="name" type="text" placeholder="اسم الطالب الكامل" class="w-full bg-slate-50 p-4 rounded-2xl outline-none ring-blue-500 focus:ring-2" required>
+                <div class="grid grid-cols-2 gap-4">
+                    <select name="cycle" class="bg-slate-50 p-4 rounded-2xl outline-none" required>
+                        <option>ابتدائي</option><option>متوسط</option><option>ثانوي</option>
                     </select>
-
-                    <select id="yearSelect" name="year" class="w-full bg-slate-50 p-4 rounded-2xl border-none outline-none" required>
-                        <option value="">اختر السنة</option>
-                    </select>
+                    <input name="year" type="text" placeholder="السنة الدراسية" class="bg-slate-50 p-4 rounded-2xl outline-none" required>
                 </div>
-
-                <div class="space-y-4">
-                    <label class="font-bold text-sm text-slate-500">بيانات الدراسة</label>
-                    <select id="streamSelect" name="stream" class="w-full bg-slate-50 p-4 rounded-2xl border-none outline-none hidden">
-                        <option value="">اختر الشعبة</option>
-                        <option>علوم تجريبية</option>
-                        <option>رياضيات</option>
-                        <option>تقني رياضي</option>
-                        <option>تسيير واقتصاد</option>
-                        <option>آداب وفلسفة</option>
-                        <option>لغات أجنبية</option>
-                    </select>
-
-                    <select name="subject" class="w-full bg-slate-50 p-4 rounded-2xl border-none outline-none" required>
-                        <option value="">اختر المادة</option>
-                        <option>رياضيات</option><option>فيزياء</option><option>علوم</option>
-                        <option>لغة عربية</option><option>فرنسية</option><option>إنجليزية</option>
-                        <option>فلسفة</option><option>محاسبة</option>
-                    </select>
-
-                    <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100">
-                        <p class="text-[10px] text-blue-600 font-bold uppercase">سيتم تسجيل الطالب بتاريخ:</p>
-                        <p class="text-sm font-black text-slate-700"><%= stats.currentTime %></p>
-                    </div>
-                </div>
+                <input name="subject" type="text" placeholder="المادة" class="w-full bg-slate-50 p-4 rounded-2xl outline-none" required>
             </div>
-
-            <div class="mt-10 flex gap-4">
-                <button type="submit" class="flex-1 bg-slate-900 text-white py-5 rounded-2xl font-bold text-lg hover:bg-blue-600 transition-all shadow-xl">إتمام التسجيل الآن</button>
-                <button type="button" onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-500 py-5 rounded-2xl font-bold text-lg">إلغاء</button>
+            <div class="mt-8 flex gap-3">
+                <button type="submit" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg">تأكيد التسجيل</button>
+                <button type="button" onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-500 py-4 rounded-2xl font-bold">إلغاء</button>
             </div>
         </form>
     </div>
 
     <script>
-        // نظام الخيارات الديناميكية (الجزائر)
-        const data = {
-            "ابتدائي": { years: ["السنة 1", "السنة 2", "السنة 3", "السنة 4", "السنة 5"], hasStream: false },
-            "متوسط": { years: ["السنة 1", "السنة 2", "السنة 3", "السنة 4"], hasStream: false },
-            "ثانوي": { years: ["السنة 1 (جذع مشترك)", "السنة 2", "السنة 3 (بكالوريا)"], hasStream: true }
-        };
-
-        function updateOptions() {
-            const cycle = document.getElementById('cycleSelect').value;
-            const yearSelect = document.getElementById('yearSelect');
-            const streamSelect = document.getElementById('streamSelect');
-            
-            yearSelect.innerHTML = '<option value="">اختر السنة</option>';
-            if(data[cycle]) {
-                data[cycle].years.forEach(y => {
-                    yearSelect.innerHTML += `<option>${y}</option>`;
-                });
-                streamSelect.classList.toggle('hidden', !data[cycle].hasStream);
-            }
-        }
-
         function openModal() { document.getElementById('addModal').classList.remove('hidden'); }
         function closeModal() { document.getElementById('addModal').classList.add('hidden'); }
 
-        async function updateStatus(id, type, index, btn) {
+        async function updateAjax(id, type, index, btn) {
             let val;
-            if(type === 'attendance') {
-                val = !btn.classList.contains('bg-green-500');
-                btn.classList.toggle('bg-green-500');
-                btn.classList.toggle('border-green-500');
-                btn.classList.toggle('text-white');
+            if (type === 'attendance') {
+                val = !btn.classList.contains('attendance-active');
+                btn.classList.toggle('attendance-active');
             } else {
                 val = btn.innerText.includes('غير خالص');
-                btn.innerText = val ? 'خالص ✓' : 'غير خالص !';
-                btn.className = `px-5 py-2 rounded-xl text-xs font-900 transition-all shadow-sm ${val ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-50 text-red-600 border border-red-100'}`;
+                btn.innerText = val ? 'تم الدفع' : 'غير خالص';
+                btn.className = `px-6 py-2 rounded-2xl text-xs font-900 shadow-sm transition ${val ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-600 border border-red-100'}`;
             }
 
             await fetch(`/update/${id}`, {
@@ -220,12 +158,6 @@
                 body: JSON.stringify({ type, index, value: val.toString() })
             });
         }
-
-        // تحديث الساعة الحية
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('liveClock').innerText = now.toLocaleString('ar-DZ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        }, 1000);
     </script>
 </body>
 </html>
