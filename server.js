@@ -4,69 +4,78 @@ const admin = require('firebase-admin');
 const moment = require('moment');
 const app = express();
 
-const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY);
+const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY || process.env.FIREBASE_SERVICE_ACCOUNT);
 if (!admin.apps.length) admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 const db = admin.firestore();
 
 app.set('view engine', 'ejs');
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
 
+// الصفحة الرئيسية - إحصائيات مصغرة
 app.get('/', async (req, res) => {
     const snap = await db.collection('students').orderBy('createdAt', 'desc').get();
     const students = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    // حساب إحصائيات حقيقية دقيقة
-    const cycleCounts = { 'ابتدائي': 0, 'متوسط': 0, 'ثانوي': 0 };
-    let unpaidTotal = 0;
-    
-    // بيانات المنحنى (آخر 5 أشهر)
-    const months = [];
-    for(let i=4; i>=0; i--) months.push(moment().subtract(i, 'months').format('MMM'));
-    
-    students.forEach(s => {
-        if (cycleCounts[s.cycle] !== undefined) cycleCounts[s.cycle]++;
-        if (s.subjects) s.subjects.forEach(sub => { if (!sub.paid) unpaidTotal++; });
-    });
-
     const stats = {
         total: students.length,
-        cycleData: Object.values(cycleCounts),
-        unpaid: unpaidTotal,
-        labels: months,
-        regData: [5, 12, 8, 15, students.length] // مثال لبيانات حقيقية يمكن استخراجها من createdAt
+        unpaid: students.reduce((acc, s) => acc + (s.subjects?.filter(sub => !sub.paid).length || 0), 0),
+        primary: students.filter(s => s.cycle === 'ابتدائي').length,
+        middle: students.filter(s => s.cycle === 'متوسط').length,
+        high: students.filter(s => s.cycle === 'ثانوي').length
     };
-    res.render('index', { students, stats });
+    res.render('index', { students, stats, page: 'home' });
 });
 
-// إضافة مادة لطالب موجود (طلبك الخاص)
-app.post('/add-subject/:id', async (req, res) => {
-    try {
-        const { subName, sessions } = req.body;
-        const studentRef = db.collection('students').doc(req.params.id);
-        const newSub = {
-            name: subName,
-            attendance: Array(parseInt(sessions)).fill(false),
-            paid: false,
-            createdAt: new Date().toISOString()
-        };
-        await studentRef.update({
-            subjects: admin.firestore.FieldValue.arrayUnion(newSub)
-        });
-        res.json({ success: true, newSub });
-    } catch (e) { res.status(500).json({ error: e.message }); }
+// صفحة البروفيل الشخصي
+app.get('/profile/:id', async (req, res) => {
+    const doc = await db.collection('students').doc(req.params.id).get();
+    if (!doc.exists) return res.redirect('/');
+    res.render('profile', { s: { id: doc.id, ...doc.data() }, page: 'profile' });
 });
 
-// تحديث الحضور أو الدفع (بدون رفرش)
-app.post('/update-status/:id', async (req, res) => {
+// تحديث حالة الحصة أو الدفع
+app.post('/update-sub-status/:id', async (req, res) => {
     const { subIndex, type, attIndex, value } = req.body;
     const docRef = db.collection('students').doc(req.params.id);
     const doc = await docRef.get();
-    let subjects = doc.data().subjects;
-    if (type === 'attendance') subjects[subIndex].attendance[attIndex] = (value === 'true');
-    if (type === 'paid') subjects[subIndex].paid = (value === 'true');
+    let { subjects } = doc.data();
+
+    if (type === 'attendance') {
+        subjects[subIndex].attendance[attIndex] = (value === 'true');
+    } else if (type === 'paid') {
+        subjects[subIndex].paid = (value === 'true');
+    }
+
     await docRef.update({ subjects });
     res.json({ success: true });
 });
 
-app.listen(3000, () => console.log('Maali App Active on Port 3000'));
+// فتح شهر جديد (تصفير)
+app.post('/reset-month/:id', async (req, res) => {
+    const { subIndex } = req.body;
+    const docRef = db.collection('students').doc(req.params.id);
+    const doc = await docRef.get();
+    let { subjects } = doc.data();
+
+    subjects[subIndex].attendance = subjects[subIndex].attendance.fill(false);
+    subjects[subIndex].paid = false;
+
+    await docRef.update({ subjects });
+    res.json({ success: true });
+});
+
+app.post('/add-student', async (req, res) => {
+    const { name, cycle, year, subjects } = req.body;
+    const subjectsList = Array.isArray(subjects) ? subjects : (subjects ? [subjects] : []);
+    const subjectsData = subjectsList.map(s => ({
+        name: s, sessionsCount: 4, attendance: [false, false, false, false], paid: false
+    }));
+    await db.collection('students').add({
+        name, cycle, year, subjects: subjectsData, createdAt: new Date().toISOString()
+    });
+    res.redirect('/');
+});
+
+app.listen(3000, () => console.log('Maali System Pro Running...'));
