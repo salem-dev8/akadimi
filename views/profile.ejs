@@ -3,90 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بروفيل | <%= s.name %></title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>ملف الطالب | أكاديمية المعالي</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap'); body { font-family: 'Cairo', sans-serif; background: #f8fafc; }</style>
+    <style>
+        :root { --primary-color: #2c3e50; --accent-color: #3498db; }
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-bottom: 100px; }
+        .profile-header { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-bottom: 5px solid var(--accent-color); }
+        .info-card { background: white; border-radius: 15px; padding: 20px; margin-top: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .status-badge { padding: 8px 15px; border-radius: 50px; font-weight: bold; font-size: 0.9rem; }
+        .attendance-item { border-right: 4px solid var(--accent-color); margin-bottom: 10px; background: #fff; }
+        .btn-back { color: var(--primary-color); text-decoration: none; font-weight: bold; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #eee; }
+    </style>
 </head>
-<body class="pb-24">
+<body>
 
-    <div class="p-6 space-y-6">
-        <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 flex items-center gap-4">
-            <div class="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-blue-100"><%= s.name[0] %></div>
-            <div>
-                <h2 class="text-lg font-bold text-slate-800"><%= s.name %></h2>
-                <span class="text-[10px] bg-slate-100 px-2 py-1 rounded-lg text-slate-500 font-bold"><%= s.cycle %> - <%= s.year %></span>
-            </div>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="/" class="btn-back"><i class="fas fa-arrow-right"></i> عودة للقائمة</a>
+        <a href="/delete/<%= student.id %>" class="btn btn-outline-danger btn-sm" onclick="return confirm('هل أنت متأكد من حذف هذا الطالب نهائياً؟')">
+            <i class="fas fa-trash"></i> حذف الطالب
+        </a>
+    </div>
+
+    <div class="profile-header text-center">
+        <div class="avatar-circle mb-3 mx-auto" style="width: 80px; height: 80px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-user-graduate fa-3x text-secondary"></i>
         </div>
-
-        <div class="space-y-4">
-            <% s.subjects.forEach((sub, idx) => { %>
-            <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-slate-700"><%= sub.name %></h3>
-                    <button onclick="togglePaid('<%= s.id %>', <%= idx %>, this)" 
-                        class="text-[10px] px-4 py-2 rounded-xl font-bold transition <%= sub.paid ? 'bg-green-500 text-white shadow-lg' : 'bg-red-50 text-red-500 border border-red-100' %>">
-                        <%= sub.paid ? 'تم الدفع ✓' : 'غير خالص' %>
-                    </button>
-                </div>
-
-                <div class="flex gap-2 mb-6">
-                    <% sub.attendance.forEach((done, aIdx) => { %>
-                    <div onclick="updateAtt('<%= s.id %>', <%= idx %>, <%= aIdx %>, this)" 
-                         class="w-11 h-11 rounded-2xl border-2 flex items-center justify-center font-bold transition-all text-xs
-                         <%= done ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'border-slate-100 text-slate-300' %>">
-                        <%= aIdx + 1 %>
-                    </div>
-                    <% }) %>
-                </div>
-
-                <% if(sub.attendance.every(v => v === true)) { %>
-                <button onclick="resetMonth('<%= s.id %>', <%= idx %>)" class="w-full py-4 bg-slate-900 text-white rounded-2xl text-xs font-bold shadow-xl animate-bounce">
-                    فتح حصص الشهر الجديد <i class="fas fa-redo-alt mr-2"></i>
-                </button>
-                <% } %>
-            </div>
+        <h3 class="fw-bold"><%= student.firstName %> <%= student.lastName %></h3>
+        <span class="badge bg-light text-dark mb-2"><%= student.year %> - <%= student.stream %></span>
+        <div class="mt-2">
+            <% student.subjects.forEach(sub => { %>
+                <span class="badge bg-info text-white"><%= sub %></span>
             <% }) %>
         </div>
     </div>
 
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[85%] bg-white/90 backdrop-blur-md border shadow-2xl rounded-full h-16 flex items-center justify-around px-6 z-50">
-        <a href="/" class="<%= page === 'home' ? 'text-blue-600' : 'text-slate-300' %>"><i class="fas fa-home text-xl"></i></a>
-        <div class="w-10 h-1 text-slate-100 bg-slate-100 rounded-full"></div>
-        <a href="/profile/<%= s.id %>" class="<%= page === 'profile' ? 'text-blue-600' : 'text-slate-300' %>"><i class="fas fa-user-graduate text-xl"></i></a>
+    <div class="info-card">
+        <h6 class="fw-bold mb-3"><i class="fas fa-money-bill-wave text-success me-2"></i> حالة الدفع الشهري</h6>
+        <form action="/update-student/<%= student.id %>" method="POST" class="row g-2">
+            <div class="col-8">
+                <select name="paymentStatus" class="form-select">
+                    <option value="لم يتم الدفع" <%= student.paymentStatus === 'لم يتم الدفع' ? 'selected' : '' %>>❌ لم يتم الدفع</option>
+                    <option value="تم الدفع" <%= student.paymentStatus === 'تم الدفع' ? 'selected' : '' %>>✅ تم الدفع</option>
+                </select>
+            </div>
+            <div class="col-4">
+                <button type="submit" class="btn btn-primary w-100">تحديث</button>
+            </div>
+        </form>
     </div>
 
-    <script>
-        async function updateAtt(id, subIdx, attIdx, btn) {
-            const isVal = !btn.classList.contains('bg-blue-600');
-            await fetch(`/update-sub-status/${id}`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ subIndex: subIdx, type: 'attendance', attIndex: attIdx, value: isVal.toString() })
-            });
-            location.reload();
-        }
+    <div class="info-card">
+        <h6 class="fw-bold mb-3"><i class="fas fa-calendar-check text-primary me-2"></i> تسجيل الحضور (الحصص)</h6>
+        <form action="/update-student/<%= student.id %>" method="POST" class="mb-4">
+            <div class="input-group">
+                <input type="date" name="attendanceDate" class="form-control" required>
+                <button class="btn btn-success" type="submit">تسجيل حضور</button>
+            </div>
+        </form>
 
-        async function togglePaid(id, subIdx, btn) {
-            const isVal = !btn.classList.contains('bg-green-500');
-            await fetch(`/update-sub-status/${id}`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ subIndex: subIdx, type: 'paid', value: isVal.toString() })
-            });
-            location.reload();
-        }
+        <div class="attendance-list">
+            <% if(student.attendance && student.attendance.length > 0) { %>
+                <% student.attendance.reverse().forEach(record => { %>
+                    <div class="p-3 shadow-sm attendance-item d-flex justify-content-between align-items-center">
+                        <span><i class="far fa-clock me-2"></i> حصة يوم: <strong><%= record.date %></strong></span>
+                        <span class="text-success fw-bold">حاضر</span>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p class="text-muted text-center">لا توجد حصص مسجلة بعد</p>
+            <% } %>
+        </div>
+    </div>
+</div>
 
-        async function resetMonth(id, subIdx) {
-            if(confirm('هل تريد إغلاق هذا الشهر وفتح شهر جديد؟')) {
-                await fetch(`/reset-month/${id}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ subIndex: subIdx })
-                });
-                location.reload();
-            }
-        }
-    </script>
+<nav class="bottom-nav">
+    <a href="/" class="text-secondary text-decoration-none text-center"><i class="fas fa-home d-block fs-4"></i> الرئيسية</a>
+    <a href="/stats" class="text-secondary text-decoration-none text-center"><i class="fas fa-chart-bar d-block fs-4"></i> الإحصائيات</a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
