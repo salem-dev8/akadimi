@@ -3,70 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الإحصائيات | أكاديمية المعالي</title>
+    <title>تحليلات الأكاديمية</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f0f2f5; font-family: 'Segoe UI', sans-serif; padding-bottom: 80px; }
-        .stat-card { border: none; border-radius: 20px; overflow: hidden; transition: transform 0.3s; }
-        .stat-card:hover { transform: translateY(-5px); }
-        .bg-gradient-blue { background: linear-gradient(45deg, #2193b0, #6dd5ed); }
-        .bg-gradient-green { background: linear-gradient(45deg, #11998e, #38ef7d); }
-        .bg-gradient-orange { background: linear-gradient(45deg, #f12711, #f5af19); }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #eee; }
+        body { background: #f8faff; font-family: 'Segoe UI', sans-serif; padding: 30px 15px 100px; }
+        .stat-circle { width: 180px; height: 180px; border-radius: 50%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 30px; box-shadow: 0 15px 35px rgba(67, 97, 238, 0.15); border: 8px solid #4361ee; }
+        .card-glass { border-radius: 30px; border: none; background: white; box-shadow: 0 10px 20px rgba(0,0,0,0.02); }
+        .icon-box { width: 50px; height: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 15px; }
+        .bg-soft-blue { background: #eef2ff; color: #4361ee; }
+        .bg-soft-green { background: #ecfdf5; color: #10b981; }
+        .bottom-nav { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(43, 45, 66, 0.95); backdrop-filter: blur(10px); border-radius: 30px; display: flex; justify-content: space-around; padding: 15px; z-index: 2000; }
+        .nav-link { color: #8d99ae; text-decoration: none; font-size: 1.2rem; }
+        .nav-link.active { color: #4cc9f0; }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-light bg-white shadow-sm mb-4">
-    <div class="container">
-        <span class="navbar-brand fw-bold text-primary mx-auto">لوحة التحكم والإحصائيات</span>
-    </div>
-</nav>
-
 <div class="container">
+    <div class="text-center mb-5">
+        <h3 class="fw-bold">الإحصائيات العامة</h3>
+        <p class="text-muted">نظرة شاملة على أداء الأكاديمية</p>
+    </div>
+
+    <div class="stat-circle">
+        <span class="display-4 fw-bold text-primary"><%= total %></span>
+        <span class="text-muted small">طالب مسجل</span>
+    </div>
+
     <div class="row g-4">
-        <div class="col-12">
-            <div class="card stat-card bg-gradient-blue text-white p-4 shadow">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-uppercase mb-1">إجمالي الطلاب المسجلين</h6>
-                        <h2 class="display-4 fw-bold"><%= total %></h2>
-                    </div>
-                    <i class="fas fa-user-graduate fa-4x opacity-50"></i>
-                </div>
+        <div class="col-6">
+            <div class="card-glass p-4 text-center">
+                <div class="icon-box bg-soft-blue mx-auto"><i class="fas fa-layer-group"></i></div>
+                <h6 class="text-muted small">المستويات</h6>
+                <div class="fw-bold">ثانوي/متوسط</div>
             </div>
         </div>
-
         <div class="col-6">
-            <div class="card stat-card bg-gradient-green text-white p-3 shadow text-center">
-                <i class="fas fa-check-circle fa-2x mb-2"></i>
-                <h6>الطلاب النشطين</h6>
-                <p class="mb-0 fw-bold">100%</p>
-            </div>
-        </div>
-
-        <div class="col-6">
-            <div class="card stat-card bg-gradient-orange text-white p-3 shadow text-center">
-                <i class="fas fa-star fa-2x mb-2"></i>
-                <h6>المستويات</h6>
-                <p class="mb-0 fw-bold">ثانوي/متوسط</p>
+            <div class="card-glass p-4 text-center">
+                <div class="icon-box bg-soft-green mx-auto"><i class="fas fa-shield-alt"></i></div>
+                <h6 class="text-muted small">حالة النظام</h6>
+                <div class="fw-bold text-success">مؤمن</div>
             </div>
         </div>
     </div>
 
-    <div class="card mt-4 border-0 shadow-sm p-4 text-center" style="border-radius: 20px;">
-        <h5 class="fw-bold mb-3">نظرة عامة على الأكاديمية</h5>
-        <p class="text-muted">يتم تحديث هذه البيانات تلقائياً بناءً على العمليات المسجلة في قاعدة بيانات فايربيس الخاصة بالأكاديمية.</p>
-        <img src="https://res.cloudinary.com/duixjs8az/image/upload/v1765132270/post_media/1765132269901-1765132158292.jpg" alt="Logo" style="width: 100px; margin: 0 auto; opacity: 0.2;">
+    <div class="card-glass mt-4 p-4 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <div class="icon-box bg-light mb-0 me-3" style="margin-left: 15px;"><i class="fas fa-database text-secondary"></i></div>
+            <div>
+                <h6 class="mb-0 fw-bold">قاعدة البيانات</h6>
+                [cite_start]<small class="text-muted">متصلة بـ Firebase [cite: 1]</small>
+            </div>
+        </div>
+        <i class="fas fa-chevron-left text-light"></i>
     </div>
 </div>
 
-<nav class="bottom-nav">
-    <a href="/" class="text-secondary text-decoration-none text-center"><i class="fas fa-home d-block fs-4"></i> الرئيسية</a>
-    <a href="/stats" class="text-primary text-decoration-none text-center fw-bold"><i class="fas fa-chart-bar d-block fs-4"></i> الإحصائيات</a>
-</nav>
+<div class="bottom-nav">
+    <a href="/" class="nav-link"><i class="fas fa-th-large"></i></a>
+    <a href="/stats" class="nav-link active"><i class="fas fa-chart-line"></i></a>
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
