@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإحصائيات | أكاديمية المعالي</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', sans-serif; padding-bottom: 80px; }
+        .stat-card { border: none; border-radius: 20px; overflow: hidden; transition: transform 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); }
+        .bg-gradient-blue { background: linear-gradient(45deg, #2193b0, #6dd5ed); }
+        .bg-gradient-green { background: linear-gradient(45deg, #11998e, #38ef7d); }
+        .bg-gradient-orange { background: linear-gradient(45deg, #f12711, #f5af19); }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #eee; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-white shadow-sm mb-4">
+    <div class="container">
+        <span class="navbar-brand fw-bold text-primary mx-auto">لوحة التحكم والإحصائيات</span>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="card stat-card bg-gradient-blue text-white p-4 shadow">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-1">إجمالي الطلاب المسجلين</h6>
+                        <h2 class="display-4 fw-bold"><%= total %></h2>
+                    </div>
+                    <i class="fas fa-user-graduate fa-4x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6">
+            <div class="card stat-card bg-gradient-green text-white p-3 shadow text-center">
+                <i class="fas fa-check-circle fa-2x mb-2"></i>
+                <h6>الطلاب النشطين</h6>
+                <p class="mb-0 fw-bold">100%</p>
+            </div>
+        </div>
+
+        <div class="col-6">
+            <div class="card stat-card bg-gradient-orange text-white p-3 shadow text-center">
+                <i class="fas fa-star fa-2x mb-2"></i>
+                <h6>المستويات</h6>
+                <p class="mb-0 fw-bold">ثانوي/متوسط</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4 border-0 shadow-sm p-4 text-center" style="border-radius: 20px;">
+        <h5 class="fw-bold mb-3">نظرة عامة على الأكاديمية</h5>
+        <p class="text-muted">يتم تحديث هذه البيانات تلقائياً بناءً على العمليات المسجلة في قاعدة بيانات فايربيس الخاصة بالأكاديمية.</p>
+        <img src="https://res.cloudinary.com/duixjs8az/image/upload/v1765132270/post_media/1765132269901-1765132158292.jpg" alt="Logo" style="width: 100px; margin: 0 auto; opacity: 0.2;">
+    </div>
+</div>
+
+<nav class="bottom-nav">
+    <a href="/" class="text-secondary text-decoration-none text-center"><i class="fas fa-home d-block fs-4"></i> الرئيسية</a>
+    <a href="/stats" class="text-primary text-decoration-none text-center fw-bold"><i class="fas fa-chart-bar d-block fs-4"></i> الإحصائيات</a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
